@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Network xmlns="http://www.xmos.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.xmos.com http://www.xmos.com">
+  <Type>Board</Type>
+  <Name>blink_led example config</Name>
+
+  <Declarations>
+    <Declaration>core stdcore[1]</Declaration>
+  </Declarations>
+
+  <Nodes>
+    <Node Id="0" InPackageId="0" Type="XS1-L1A" Oscillator="20MHz" SystemFrequency="400MHz">
+      <Boot>
+        <Source Location="SPI:bootFlash"/>
+      </Boot>
+      <Core Number="0" Reference="stdcore[0]">
+        <Port Location="XS1_PORT_1A" Name="PORT_SPI_MISO"/>
+        <Port Location="XS1_PORT_1B" Name="PORT_SPI_SS"/>
+        <Port Location="XS1_PORT_1C" Name="PORT_SPI_CLK"/>
+        <Port Location="XS1_PORT_1D" Name="PORT_SPI_MOSI"/>
+      </Core>
+    </Node>
+  </Nodes>
+
+  <Packages>
+    <Package id="0" Type="XS1-L1A-LQ64">
+      <Component NodeId="0" InPackage="0"/>
+    </Package>
+  </Packages>
+
+  <ExternalDevices>
+    <Device NodeId="0" Core="0" Class="SPIFlash" Name="bootFlash" Type="AT25DF041A">
+      <Attribute Name="PORT_SPI_MISO" Value="PORT_SPI_MISO"/>
+      <Attribute Name="PORT_SPI_SS"   Value="PORT_SPI_SS"/>
+      <Attribute Name="PORT_SPI_CLK"  Value="PORT_SPI_CLK"/>
+      <Attribute Name="PORT_SPI_MOSI" Value="PORT_SPI_MOSI"/>
+    </Device>
+  </ExternalDevices>
+
+  <JTAGChain>
+    <JTAGDevice NodeId="0"/>
+  </JTAGChain>
+</Network>
