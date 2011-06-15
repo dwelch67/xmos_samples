@@ -25,12 +25,12 @@ notmain:
     ldap r11,thread1    # get address for the code for new thread
     init t[r0]:pc,r11   # set pc for new thread
 
-    getr r5,2
-    getr r6,2
-    setd res[r5],r6
-    setd res[r6],r5
-    set t[r0]:r5,r5
-    set t[r0]:r6,r6
+    getr r5,2           # allocate a channel end for thread 0
+    getr r6,2           # allocate a channel end for thread 1
+    setd res[r5],r6     # set the thread 0 channel to talk to thread 1
+    setd res[r6],r5     # set the thread 1 channel to talk to thread 0
+    set t[r0]:r5,r5     # fill thread 1 registers with the two channel
+    set t[r0]:r6,r6     #   end handles
 
     msync res[r4]       # start all allocated threads
     bu thread0          # give thread 0, the main thread, a place to go
@@ -40,7 +40,7 @@ thread0:
     # define XS1_PORT_1E 0x10600
     ldc r11,0x1060
     shl r11,r11,4
-    ldc r10,1
+    ldc r10,1           # thread 0 turns on the gpio
 
     outct res[r6],1
 
@@ -58,7 +58,7 @@ thread1:
     # define XS1_PORT_1E 0x10600
     ldc r11,0x1060
     shl r11,r11,4
-    ldc r10,0
+    ldc r10,0           # thread 1 turns off the gpio
 
 t1loop:
     chkct res[r6],1
