@@ -1,0 +1,77 @@
+
+The folks at xmos.com have a very cool processor core that they are
+selling in a few combinations and packages.
+
+I am guessing they are targeting the cpld and small fpga world as well
+as perhaps the microcontroller world (I dont know off hand what the
+power consumption is).
+
+Unlike the traditional processor, one program counter, walk through
+the code, interrupt and change the pc if you want to execute a different
+thread of code, etc.  This core has 8 threads and it looks like each
+core has its own set of registers, all they share is the binary program
+space.  Although you could argue it is like memory mapped I/O the ports
+and timers are not accessed in the traditional way.  True there are
+a set of addresses but you use specific instructions when accessing
+ports and timers and other peripherals than you use when accessing
+memory.  The peripherals are also more tightly coupled with the core
+than you would find in a traditional processor, for example there is
+a mode where you can write a timer count value to a timer and then on
+the next read of the timer count that thread is paused, no other
+execution, until that timer count comes.  Likewise there are thread
+to thread communication paths and instructions where you can have a
+thread be held indefinitily waiting for the next item to come over
+that channel.
+
+This really does lend itself to competing with a cpld, there is nothing
+really wrong with VHDL or Verilog, but each vendors tools to turn that
+HDL into a working cpld is for some reason much more painful than it
+needs to be.  A contstant struggle.  The xmos folks have modified
+gcc to create an extension of the C language (XC) that exposes the
+features of this processor like ports and channels and parallel execution.
+So far the tool is no more painful than gcc to use, which sometimes can
+be annoying but compared to cpld and fpga tools out there today it is
+a breeze.  Add to that, you can gang up xcores to make a larger design
+there is at least one four core chip from xmos, but single core chips
+can be connected together and the software on the cores effortlessly
+communcate over these thread to thread channels.  I am pretty sure that
+on power up or when commanded one chip uses these channels to load
+the program into all the other chips on the chain.
+
+Did I mention that the cost of the xmos developers kit is signing up on
+their website?  Basically free.  And, on top of all that you get a
+simulator, both logic and instruction set, which I think I saw them
+say that can be integrated into other simulations.  The output can be
+a dump of instructions and registers in execution order, or a waveform
+output of the I/O lines as well as thread internals that hardware
+engineers are used to looking at.
+
+So obviously I like this product line.  I did play with their XC language
+and have a few eval boards, but wanted to get down into the assembler.
+It took a bit of work at first to get a feel for what is going on, for
+asm programmers their docs are a good reference, but do not really serve
+to teach or get you started.  This repo will hopefully provide just that
+a little push or a little bit of connecting the dots to begin to
+understand some basics for this processor and start writing and debugging
+some programs.
+
+I do not work for xmos in any way shape or form, I just happen to like
+this core and want to see them succeed.  Perhaps if lucky I can convice
+the folks I do work for to try one of these in one of our designs and/or
+build something of my own on the side that uses an xmos device.  For
+now I am quite pleased just using the simulator and the eval boards
+that I have purchased.  Note sparkfun has a board as well as the ones
+from xmos.
+
+Most of these examples, if not all, you only need the developer tools
+the assembler, compiler, linker and xsim simulator.  A single download
+from xmos.com.  My development environment is Linux, I would assume that
+the other operating systems supported provide the same command line
+tools and with those tools, you should be able to use these sample
+programs.  It is very easy, if not trivial, to run your program on
+the hardware or program it into the flash on the hardware xrun or xflash
+instead of xsim.
+
+Start with the blink_led directory, blink_xc.xc and then blink_asm.s.
+As well as a readme in that directory and the other example
+directories (TODO).
