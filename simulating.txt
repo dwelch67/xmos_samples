@@ -1,0 +1,72 @@
+
+see compiling_xc.txt or compiling_asm.txt for information on building
+the .xe executable file.
+
+If you want to simulate and use the trace feature which prints out
+instructions and registers as it executes through them then
+
+xsim -t --max-cycles 2000 myfile.xe
+
+Depending on what you are doing adjust the --max-cycles value until you
+see what you need to see in the output.
+
+If you want to generate a .vcd file, which is a form of waveform file
+which hardware engineers usually use to examine a simulation.  Then
+do something like this:
+
+
+xsim --max-cycles 2000 --vcd-tracing "-o myfile.vcd -ports -cycles -threads -timers -instructions -functions" myfile.xe
+
+Note that for a multi-core chip after the -o myfile.vcd you need to specify
+each core by name stdcore[0], stdcore[1], etc and what options per core
+It makes for a very long command line, I wonder if there is a simpler
+way.
+
+xsim --max-cycles 2000 --vcd-tracing "-o myfile.vcd -core stdcore[0] -ports -cycles ... -core stdcore[1] -ports -cycles ... etc" myfile.xe
+
+I recommend gtkwave for viewing vcd files.  If because of the number
+of cycles or whatever you have created a large vcd file gtkwave will
+print out a warning/recommendation to use the giga option from the
+command line
+
+gtkwave -g myfile.vcd
+
+to use the giga option or if you do not need to or do not want to then
+
+gtkwave myfile.vcd
+
+I wont go too much into how to use gtkwave, but I will get you started
+
+The upper left window normally has the heirarchy of your design, kind
+of like a directory structure.  Sometimes you may need to use that, for
+the xsim output at the time of this writing you do not need to worry
+about that window.
+
+The lower left window shows the signals for that level of the design.
+There is a text box you can use to filter out a subset of those signals
+for the xsim output there is not that many signals so you dont need
+to mess with that for now, leave that box as is.
+
+Click on a signal in the lower left window.  Then ctrl-a to highlight
+all of the signals.  Then press the append button to add all of the
+signals into the waveform window.
+
+There are various different ways to zoom until it fits, one way, with
+the version of gtkwave I am using at the moment, from the top menu,
+Time->Zoom->Full.
+
+Slide up in the waveform window to the top.  The stdcore[0] Functions,
+Thread, and INSTRUCTION_MNEMONIC waveforms are actually ascii words,
+to see what they say, highlight those waveforms (one at a time or
+all at once, doesnt matter).  Right click on one of the selected
+waveforms and change the data format to ascii.
+
+Now depending on what the example program was supposed to do you can
+slide the waveform window down to the port number and see that port
+changing state.
+
+What I wont get into here is how to use the mouse and other controls
+to zoom in and out to get a better view.  For example clicking just to
+the left of a state change gives something different than clicking
+just to the right.
+

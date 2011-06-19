@@ -1,0 +1,16 @@
+
+Windows may just have the environment variable setup all the time.
+In Linux what I do is change to the base directory for the xmos sdk
+tools.  Basically be in the directory where the SetEnv script is.
+
+> source SetEnv
+
+Now change to wherever you have the .xc file you want to compile
+
+> xcc myfile.xc config.xn -o myfile.xe
+
+I have provided simple .xn files in each directory, since the examples
+use port numbers directly the .xn file is there just to keep xcc happy.
+The processor specified in the .xn file does matter so if you are
+interested in a single xcore choose a .xn file which specifies a single
+xcore chip.
