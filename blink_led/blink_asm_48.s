@@ -2,44 +2,45 @@
 
 # This demonstrates that when narrower port (4 bit) that shares pins with
 # a wider port (8 bit) and both ports are enabled the smaller port
-# overrides the wider port for the shared pins.
+# overrides the wider port for the shared pins.  This is described in
+# the documentation.  You do not need to enable or mess with the larger
+# ports at all if what you want is within a smaller sized port.  This
+# just shows what happens *if* you choose to have overlapping ports
+# enabled and in use.
 
-# at the time of this writing the simulation shows the mixing of these
-# output bits in the PORT_8B trace.
+# This example is derived from blink_asm_timer.s which is derived from
+# other blink led examples, refer to those examples for more information
+# about using a timer and general use of the I/O ports.
 
-# see blink_asm_48.s for information about how the timer is used
-# in these examples
 
-# see blink_asm.s for general information on using the gpio lines as
-# outputs.
+# define XS1_PORT_8B 0x80100
+# define XS1_PORT_4D 0x40300
+# define XS1_SETC_INUSE_ON 0x8
+# define XS1_RES_TYPE_CLKBLK 0x6
+# define XS1_SETC_COND_NONE 0x1
+# define XS1_SETC_COND_AFTER 0x9
 
-#define XS1_PORT_8B 0x80100
-#define XS1_PORT_4D 0x40300
 
 .globl _start
 _start:
-    ldc r1, 100
-notmain:
-    sub r1,r1,1
-    bt r1, notmain
 
     ldc  r11, 0x6
     setc res[r11], 0x8  # setci
     setc res[r11], 0xf  # setci
 
+# setup both I/O ports as normal.
     ldc r8,0x4030
     shl r8,r8,4
     ldc r9,0x8010
     shl r9,r9,4
 
-    # define XS1_SETC_INUSE_ON 0x8
     setc res[r8],0x8
     setc res[r9],0x8
-    # define XS1_RES_TYPE_CLKBLK 0x6  look at GETR instruction for a list
     ldc r1,0x6
     setclk res[r8],r1
     setclk res[r9],r1
 
+# setup the timer
     getr r5,0x1
     setc res[r5],0x1
     in r7,res[r5]
@@ -59,12 +60,5 @@ hangout:
     xor r2,r2,r6
     bu hangout
 
-
-# change to xmos tools dir with SetEnv
-# source SetEnv
-# change to where this code is
-# xas blink_asm_48.s -o blink_asm_48.o
-# xcc blink_asm_48.o blink_led.xn -o blink_asm_48.xe -nostartfiles
-# xsim --max-cycles 2000 --vcd-tracing "-o blink_asm_48.vcd -ports -cycles -threads -timers -instructions -functions" blink_asm_48.xe
-
-
+# at the time of this writing the simulation shows the mixing of these
+# output bits in the PORT_8B trace.

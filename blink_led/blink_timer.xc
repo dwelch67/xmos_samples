@@ -15,8 +15,3 @@ int main ( void ) {
    }
    return 0;
 }
-
-//change dir to base of xmos toolchain dir
-//source SetEnv
-//xcc blink_timer.xc blink_led.xn -o blink_timer.xe
-//xsim --max-cycles 2000 --vcd-tracing "-o blink_timer.vcd -ports -cycles -threads -timers -instructions -functions" blink_timer.xe
