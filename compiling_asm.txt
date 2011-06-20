@@ -1,0 +1,34 @@
+
+First off, to curb your confusion.  Look at the Programming XC on
+XMOS Devices document.  In the bibliography there is a link to
+the application binary interface:
+
+http://www.xmos.com/published/abi97
+
+Now that document's bibliography points you at the XS1 Assembly
+Language Manual 8.7.
+
+http://www.xmos.com/published/xas87
+
+And now that you have that manual Chapter 8 has a table that connects
+the dots between the instruction and its syntax.  For example when you
+see the instruction TSETR d,s,r in the XMOS XS1 Architecture manual
+the syntax they dont show you is set t[r]:d,s.
+
+Refer to compiling_xc.txt for setting the environment variables/path
+to the xmos tools.
+
+I like using the assembler directly, but you dont have to.
+
+One way:
+
+xas myprog.s -o myprog.o
+xcc myprog.o config.xn -o myprog.xe -nostartfiles -nostdlib
+
+Another:
+
+xcc myprog.s config.xn -o myprog.xe -nostartfiles -nostdlib
+
+The example directories have a simple .xn file, which is fine for
+simulation.  Eventually, when you are running on hardware you will
+need a config file that matches your hardware.
