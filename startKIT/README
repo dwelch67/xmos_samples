@@ -117,7 +117,10 @@ X1D58
 X1D57
 X1D56
 
-are tied to the leds.
+are tied to the leds.  Actually the schematic has X0D70 not X1D70 this
+config file doesnt have an X0D70, so we are now a second level deep into
+winging it and hoping for the best (no datasheet for this part, and now
+the config file and vendor provided schematics dont match).
 
         <Pin name="X1D61">
             <Port bitNum="10" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
