@@ -1,0 +1,35 @@
+
+This is modified from the XMOS startKIT examples (github) using a
+different pattern and much simpler build you dont need all of those
+dependencies.
+
+See the startKIT level README file to find schematics and documentation
+for this part and board.
+
+From the startKIT level README we see the leds are
+
+This is what I assume they call an XC file rather than just the C language
+it has their xmos extensions to the language.
+
+In particular these two lines
+
+port p32 = XS1_PORT_32A;
+
+        p32 <: pattern[ra];
+
+The port name comes from the config file/target specified.  The XMOS
+tools lean toward that approach, you specify something on the command
+line when compiling which points to a bunch of magic and that magic
+contains specific names.  (not really magic just a bunch of config
+files)...
+
+delay_milliseconds() is an XMOS api call that does the timing magic
+for you.
+
+Once the file figure8.xe is created you can load it into the board
+by running
+
+xflash figure8.xe
+
+When finished unplug and re-plug the usb cable and it will load and
+run the new program.

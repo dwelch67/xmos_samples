@@ -1,0 +1,184 @@
+
+Merry Xmos...Got my XMOS startKIT just in time for the Christmas
+holiday.
+
+So XMOS made a very smart move IMO.  A board that is affordable enough
+for the masses.  And second have, or have attempted to (will see),
+interface it to the Raspberry Pi.  Assuming the two work well together
+they can easily blow away, performance wise for similar price, the
+Arduino.  The XMOS part adds needed I/O in a way that is much better
+than you would get with some simple single core microcontroller, without
+having to get CPLD tools and learn Verilog or VHDL.  Understand that
+the xc language (variation on C) can still take some learning.  And if
+you get into the assembly I consider it to be for the advanced
+programmers.
+
+First impressions.
+
+1) I am VERY VERY happy to see non-migraine producing green leds, it
+is rare these days to see something other than painful blue or other
+super brights.
+2) There are a ton of holes for headers, although it will add some cost
+($5?) they should seriously consider a board with if nothing else the
+startKIT to raspberry pi connector, ideally all of the holes filled with
+header pins.  By not doing this they are locking out the folks that are
+not ready to take on soldering.
+3) The header that mates up with the Raspberry Pi looks immediately
+like it wants to be position near a corner so that you can use a
+simple dual row female header and not have interference with components
+on the Raspberry Pi board.
+4) Did I mention how happy I was to not have to immediately remove and
+replace the leds upon arrival?
+
+Glad that I had a baggie full of header connectors.  After populating
+two startKIT boards though I pretty much used up my supply of header
+pins, so I have to order more...
+
+I expect their web page to get re-architected over time, but here goes
+as of this writing start here
+
+http://www.xmos.com/startkit/started
+
+Download the following:
+
+startKIT Hardware Manual
+
+From the schematic at the end of the hardware manual we see them
+describe the part as XS1_A8DEV_64_FB217
+
+So from that go here
+https://www.xmos.com/en/support/documentation
+Silicon Devices -> xCORE-Analog(A) -> XS1-A8A-64
+
+Get these documents
+
+The XMOS XS1 Architecture (ISA)
+XS1 Ports Introduction
+
+I dont see a FB217 datasheet unfortunately so we will have to do some
+digging.  Good, Bad, or Otherwise, I tend to find the best info about
+XMOS parts from their various config files and not their docs.
+
+You are going to need this anwyay
+
+https://www.xmos.com/en/support/downloads/xtimecomposer
+
+You will probably need a (free) account username/password to get the
+installer.  Get it installed.  I run Linux (Mint as of this writing)
+so once extracted I go to
+
+XMOS/xTIMEcomposer/Community_13.0.1
+
+and then
+
+source SetEnv
+
+from that directory and then I can get at the tools, to make sure
+run xcc --version
+
+xcc --version
+Community_13.0.1 (build 11453, Dec-06-2013)
+Compiler version: 13.0.1
+Copyright (C) XMOS Limited 2008-2013. All Rights Reserved.
+
+If it cant find xcc then you are not going to get very far.
+
+So as of this writing in
+
+XMOS/xTIMEcomposer/Community_13.0.1/configs
+
+I see the file
+
+XS1-UnA-128-FB217.pkg
+
+In that file I see
+
+        <Pin name="X1D68">
+            <Port bitNum="17" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="2" dir="in" node="1" number="1"/>
+        </Pin>
+        <Pin name="X1D69">
+            <Port bitNum="18" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="3" dir="in" node="1" number="1"/>
+        </Pin>
+        <Pin name="X1D70">
+            <Port bitNum="19" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="4" dir="in" node="1" number="1"/>
+        </Pin>
+
+From the schematic, we see
+X1D70
+X1D69
+X1D68
+X1D63
+X1D62
+X1D61
+X1D58
+X1D57
+X1D56
+
+are tied to the leds.
+
+        <Pin name="X1D61">
+            <Port bitNum="10" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="4" dir="out" node="1" number="1"/>
+        </Pin>
+        <Pin name="X1D62">
+            <Port bitNum="11" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="3" dir="out" node="1" number="1"/>
+        </Pin>
+        <Pin name="X1D63">
+            <Port bitNum="12" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="2" dir="out" node="1" number="1"/>
+        </Pin>
+
+
+        <Pin name="X1D56">
+            <Port bitNum="7" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="2" dir="in" node="1" number="0"/>
+        </Pin>
+        <Pin name="X1D57">
+            <Port bitNum="8" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="3" dir="in" node="1" number="0"/>
+        </Pin>
+        <Pin name="X1D58">
+            <Port bitNum="9" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
+            <XLink bitNum="4" dir="in" node="1" number="0"/>
+        </Pin>
+
+So the port is XS1_PORT_32A and these bits in that port are tied to leds
+
+X1D70 is bit 0x80000
+X1D69 is bit 0x40000
+X1D68 is bit 0x20000
+X1D63 is bit 0x01000
+X1D62 is bit 0x00800
+X1D61 is bit 0x00400
+X1D58 is bit 0x00200
+X1D57 is bit 0x00100
+X1D56 is bit 0x00080
+
+From the schematic the led is tied between 3.3v and the gpio port, so
+making the pin high turns the led off (led has 3.3v on both ends, no
+current) and making the pin low turns the led on (led has 3.3v on
+one end and ground, 0v, on the other, current flows).
+
+They way their code (and now mine) works all 32 bits in that port are
+getting written to AFAIK, so it requires more investigation to know
+what those other port pins are tied to and whether or not to run examples
+that write the whole port (without doing a read-modify-write) if the
+board is connected to something and not sitting there by itself.
+
+Start with the figure8 example then ablink01 if interested.
+
+
+
+
+
+
+
+
+
+
+
+
