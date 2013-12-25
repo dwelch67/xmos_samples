@@ -10,4 +10,27 @@ Similar to ablink01 from which it is derived.  This example uses a
 timer in a mode where the timer read holds the thread, basically causing
 the delay we want between led state changes.
 
+These timers are 100MHz based.  If you change
+
+    ldc r3,0x01
+    shl r3,r3,24
+
+To this
+
+    ldc r3,0x20
+    shl r3,r3,24
+
+The leds change states every 6 seconds or so...
+
+100000000*6 = 0x23C34600
+
+0x20000000 / 100000000 = 5.37
+
+Using a stopwatch again, 0x80<<24 gives about 22 seconds.
+
+0x80000000 / 100000000 = 21.47 seconds.
+
+
+
+
 
