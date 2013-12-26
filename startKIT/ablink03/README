@@ -1,0 +1,13 @@
+
+See startKIT level README file for information on where to find
+docs and schematics for this startKIT board.
+
+This was created using xc code then disassembling then reading the XS1
+docs on what each instruction was doing.
+
+This uses threading and a timer and moves data between threads.
+
+Thread 0 uses the timer to wait, sends the port data to thread 1,
+thread 1 when it gets data wakes up and writes it to the port.  Repeat
+alternating the data being sent.
+

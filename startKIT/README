@@ -46,6 +46,9 @@ startKIT Hardware Manual
 From the schematic at the end of the hardware manual we see them
 describe the part as XS1_A8DEV_64_FB217
 
+The marking on my part is 8A6C5 which in the XCORE Device Part Marking
+List is XS1-A8A-64-FB96-C5
+
 So from that go here
 https://www.xmos.com/en/support/documentation
 Silicon Devices -> xCORE-Analog(A) -> XS1-A8A-64
@@ -54,9 +57,12 @@ Get these documents
 
 The XMOS XS1 Architecture (ISA)
 XS1 Ports Introduction
+XS1-A6A-64-FB96 Datasheet
 
-I dont see a FB217 datasheet unfortunately so we will have to do some
-digging.  Good, Bad, or Otherwise, I tend to find the best info about
+So the FB217 note in the schematics doesnt make sense.  It looks like
+the FB96 doc is the one to go with...will see.
+
+Good, Bad, or Otherwise, I tend to find the best info about
 XMOS parts from their various config files and not their docs.
 
 You are going to need this anwyay
@@ -89,77 +95,59 @@ XMOS/xTIMEcomposer/Community_13.0.1/configs
 
 I see the file
 
-XS1-UnA-128-FB217.pkg
+XS1-UnA-64-FB96.pkg
 
 In that file I see
 
-        <Pin name="X1D68">
-            <Port bitNum="17" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="2" dir="in" node="1" number="1"/>
+        <Pin name="X0D68">
+            <Port bitNum="17" core="0" name="XS1_PORT_32A" node="0" priority="0"/>
+            <XLink bitNum="2" dir="in" node="0" number="1"/>
         </Pin>
-        <Pin name="X1D69">
-            <Port bitNum="18" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="3" dir="in" node="1" number="1"/>
+        <Pin name="X0D69">
+            <Port bitNum="18" core="0" name="XS1_PORT_32A" node="0" priority="0"/>
+            <XLink bitNum="3" dir="in" node="0" number="1"/>
         </Pin>
-        <Pin name="X1D70">
-            <Port bitNum="19" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="4" dir="in" node="1" number="1"/>
+        <Pin name="X0D70">
+            <Port bitNum="19" core="0" name="XS1_PORT_32A" node="0" priority="0"/>
+            <XLink bitNum="4" dir="in" node="0" number="1"/>
         </Pin>
 
 From the schematic, we see
-X1D70
-X1D69
-X1D68
-X1D63
-X1D62
-X1D61
-X1D58
-X1D57
-X1D56
+X0D70
+X0D69
+X0D68
+X0D63
+X0D62
+X0D61
+X0D58
+X0D57
+X0D56
 
-are tied to the leds.  Actually the schematic has X0D70 not X1D70 this
-config file doesnt have an X0D70, so we are now a second level deep into
-winging it and hoping for the best (no datasheet for this part, and now
-the config file and vendor provided schematics dont match).
+are tied to the leds.  And that all seems to match, except that the
+XS1-A8A-64-FB96 datasheet does not have these
 
-        <Pin name="X1D61">
-            <Port bitNum="10" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="4" dir="out" node="1" number="1"/>
-        </Pin>
-        <Pin name="X1D62">
-            <Port bitNum="11" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="3" dir="out" node="1" number="1"/>
-        </Pin>
-        <Pin name="X1D63">
-            <Port bitNum="12" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="2" dir="out" node="1" number="1"/>
-        </Pin>
+X0D69
+X0D68
+X0D63
+X0D62
+X0D61
+X0D58
+X0D57
+X0D56
 
-
-        <Pin name="X1D56">
-            <Port bitNum="7" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="2" dir="in" node="1" number="0"/>
-        </Pin>
-        <Pin name="X1D57">
-            <Port bitNum="8" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="3" dir="in" node="1" number="0"/>
-        </Pin>
-        <Pin name="X1D58">
-            <Port bitNum="9" core="0" name="XS1_PORT_32A" node="1" priority="0"/>
-            <XLink bitNum="4" dir="in" node="1" number="0"/>
-        </Pin>
+The config file does though.  curious.
 
 So the port is XS1_PORT_32A and these bits in that port are tied to leds
 
-X1D70 is bit 0x80000
-X1D69 is bit 0x40000
-X1D68 is bit 0x20000
-X1D63 is bit 0x01000
-X1D62 is bit 0x00800
-X1D61 is bit 0x00400
-X1D58 is bit 0x00200
-X1D57 is bit 0x00100
-X1D56 is bit 0x00080
+X0D70 is bit 0x80000
+X0D69 is bit 0x40000
+X0D68 is bit 0x20000
+X0D63 is bit 0x01000
+X0D62 is bit 0x00800
+X0D61 is bit 0x00400
+X0D58 is bit 0x00200
+X0D57 is bit 0x00100
+X0D56 is bit 0x00080
 
 From the schematic the led is tied between 3.3v and the gpio port, so
 making the pin high turns the led off (led has 3.3v on both ends, no
@@ -174,9 +162,43 @@ board is connected to something and not sitting there by itself.
 
 Start with the figure8 example then ablink01 if interested.
 
+Between the Raspberry Pi and startKIT documentation this is the pinout
+for the connection
 
+Raspberry Pi connector
+pin raspi       startkit
 
+1   GND         (nc)
+3   SDA1        X0D49
+5   SCL1        X0D70
+7   GPIO_GCLK   X0D69
+9   GND         GND
+11  GPIO_GEN0   X0D61
+13  GPIO_GEN2   X0D58
+15  GPIO_GEN3   X0D57
+17  GND         (nc)
+19  SPI_MOSI    X0D0
+21  SPI_MISO    X0D11
+23  SPI_SCLK    X0D10
+25  GND         GND
 
+2   5.0v        (nc)
+4   5.0v        (nc)
+6   GND         GND
+8   TXD0        X0D68
+10  RXD0        X0D63
+12  GPIO_GEN1   X0D62
+14  GND         GND
+16  GPIO_GEN4   X0D56
+18  GPIO_GEN5   (nc)
+20  GND         GND
+22  GPIO_GEN6   (nc)
+24  SPI_CE0_N   X0D51
+26  SPI_CE1_N   X0D50
+
+So the uart comes into the XMOS on X0D68 and out the XMOS on X0D63, the
+Raspberry Pi spi connections are there, something to play with as well
+along with some generic gpio.
 
 
 
