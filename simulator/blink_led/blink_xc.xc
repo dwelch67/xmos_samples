@@ -5,12 +5,12 @@
 //in this example lets assume the XS1-L1A-LQ64, in the datasheet for
 //that part we see that X0D12 is tied to PORT P1E.
 
-//In an include file in the xmos toolchain dir target/include/ we see that
-//#define XS1_PORT_1E 0x10600.  The .xn configuration file allows
-//you to basically rename the port number to some other name, maybe
-//MY_RED_LED.  This example shows that we dont have to do that, you
-//can basically use this code with any .xn config file and it will
-//still wiggle the same I/O port.
+//In an include file in the xmos toolchain dir target/include/ we see
+//#define XS1_PORT_1E 0x10600.
+//The .xn configuration file allows you to basically rename the port
+// number to some other name, maybe MY_RED_LED.  This example shows that
+// we dont have to do that, you can basically use this code with any
+//.xn config file and it will still wiggle the same I/O port.
 
 //Because this example is going to be viewed in the simulator output
 //and not actually drive an led on a board, we want to blink quite
@@ -32,8 +32,6 @@ int main ()
     }
     return 0;
 }
-
-//see compiling_xc.txt and simulating.txt in the base directory
 
 //If you dump traces when you simulate you can see the I/O port
 //res[rx(0x10600] changing state with an out instruction or

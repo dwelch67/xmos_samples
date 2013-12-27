@@ -1,0 +1,41 @@
+
+These are examples that "blink" an led using xc and then assembly language
+for those really interested in how this chip works.  It is not your
+typical processor design so it can be quite fun to dig in and see a
+little better what is going on.
+
+Because this is a multithreaded processor they created extensions to the
+C language, I call it XC not sure if that is what they call it.
+
+For example in blink_xc.xc
+
+We define a variable named bled but the type is not familiar in C.  In
+XC this is a definition of an output port
+
+out port bled = XS1_PORT_1E ;
+
+which we can write to, change the state of, like this
+
+        bled <: bit_state;
+
+All of these examples are written to be run using the simulator that
+comes with the toolchain, the Makefile helps you create .vcd files
+which you can use gtkwave to look at.  Being for the simulator the
+timing is very fast, change state every loop or every 20 clocks or
+something like that, if you were to port this to hardware you would
+want to slow these down considerably so that you could see the led blink
+with your eyes..
+
+blink_xc just does a timed loop, in this case a state change every loop,
+blink_timer demonstrates the basic use of the timer.  The thread basically
+goes to sleep or waits until the timeout value is reached.  A very
+strange thing for folks that are used to having to poll in a loop or
+setup an interrupt and wait to be interrupted, more like setting up
+an interrupt and going to sleep until interrupted, but much less work.
+
+Then I have figured out from the xcc generated code and the XMOS
+documentation enough to do similar blinking I/O port examples in
+assembly language.  blink_asm.s and blink_asm_timer.s
+
+
+
