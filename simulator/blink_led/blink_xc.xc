@@ -19,6 +19,7 @@
 //loop.
 
 #include <platform.h>
+
 out port bled = XS1_PORT_1E ;
 unsigned bit_state;
 int main ()
