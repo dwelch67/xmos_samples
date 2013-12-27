@@ -34,6 +34,18 @@ thread_hand2.vcd : thread_hand2.xe
 	xsim --max-cycles 4000 --vcd-tracing "-o thread_hand2.vcd -pads -ports -ports-detailed -cycles -cores -timers -clock-blocks -instructions -functions" thread_hand2.xe
 
 
+
+thread_hand3.xe : thread_hand3.s threads.xn
+	xas thread_hand3.s -o thread_hand3.o
+	xcc -O2 thread_hand3.o threads.xn -o thread_hand3.xe -nostartfiles -nostdlib
+	xobjdump -D thread_hand3.xe > thread_hand3.list
+
+thread_hand3.vcd : thread_hand3.xe
+	xsim --max-cycles 4000 --vcd-tracing "-o thread_hand3.vcd -pads -ports -ports-detailed -cycles -cores -timers -clock-blocks -instructions -functions" thread_hand3.xe
+
+
+
+
 thread_asm.xe : thread_asm.s threads.xn
 	xas thread_asm.s -o thread_asm.o
 	xcc -O2 thread_asm.o threads.xn -o thread_asm.xe -nostartfiles -nostdlib
