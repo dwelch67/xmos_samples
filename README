@@ -75,3 +75,11 @@ instead of xsim.
 Start with the blink_led directory, blink_xc.xc and then blink_asm.s.
 As well as a readme in that directory and the other example
 directories (TODO).
+
+
+Note, this is expected when using the Makefiles to generate waveforms
+
+xsim: error: C51188: maximum cycles reached (4000)
+make: *** [thread_hand2.vcd] Error 1
+
+xsim --max-cycles 4000 -t myprog.xe
