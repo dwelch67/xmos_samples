@@ -1,0 +1,16 @@
+
+See the startKIT level README file to find schematics and documentation
+for this part and board.
+
+From the startKIT level README we see the leds are
+
+This example demonstrates a few things.  It demonstrates how to run
+multiple tasks/threads in parallel using par.  It demonstrates raw timer
+usage.  The timers freerunning at 100MHz.  There is only one port that
+drives all of the leds and so far as I know you can only have one thread
+own/use a port, so to let separate threads drive each led.  One thread
+actually changes the leds, the other threads use a communication interface
+to tell that thread when to do something.  Each of those threads has
+a slighly different timeout, it makes for an interesting blink pattern.
+
+
