@@ -1,83 +1,150 @@
 
 The folks at xmos.com have a very cool processor core that they are
-selling in a few combinations and packages.
+selling in a number of combinations and packages.
 
 I am guessing they are targeting the cpld and small fpga world as well
-as perhaps the microcontroller world (I dont know off hand what the
-power consumption is).
+as the microcontroller world.
 
 Unlike the traditional processor, one program counter, walk through
 the code, interrupt and change the pc if you want to execute a different
 thread of code, etc.  This core has 8 threads and it looks like each
-core has its own set of registers, all they share is the binary program
-space.  Although you could argue it is like memory mapped I/O the ports
-and timers are not accessed in the traditional way.  True there are
-a set of addresses but you use specific instructions when accessing
-ports and timers and other peripherals than you use when accessing
-memory.  The peripherals are also more tightly coupled with the core
-than you would find in a traditional processor, for example there is
-a mode where you can write a timer count value to a timer and then on
-the next read of the timer count that thread is paused, no other
-execution, until that timer count comes.  Likewise there are thread
-to thread communication paths and instructions where you can have a
-thread be held indefinitily waiting for the next item to come over
-that channel.
+core has its own set of registers (sharing the same program/memory
+space).  Although you could argue it is like memory mapped I/O the
+ports and timers are not accessed in the traditional way, unlike a
+traditional processor where these peripherals are outside the core
+of the processor living behind address decoders on the memory bus, the
+peripherals here are built into the core.  They dont have peripheral
+specific instructions, the instructions are generic in the sense that
+the data value determines what you are asking it to do, similar to
+loads and stores on a generic memory bus, but in this case not as
+generic.
 
-This really does lend itself to competing with a cpld, there is nothing
-really wrong with VHDL or Verilog, but each vendors tools to turn that
-HDL into a working cpld is for some reason much more painful than it
-needs to be.  A contstant struggle.  The xmos folks have modified
-gcc to create an extension of the C language (XC) that exposes the
-features of this processor like ports and channels and parallel execution.
-So far the tool is no more painful than gcc to use, which sometimes can
-be annoying but compared to cpld and fpga tools out there today it is
-a breeze.  Add to that, you can gang up xcores to make a larger design
-there is at least one four core chip from xmos, but single core chips
-can be connected together and the software on the cores effortlessly
-communcate over these thread to thread channels.  I am pretty sure that
-on power up or when commanded one chip uses these channels to load
-the program into all the other chips on the chain.
+The cores and their peripherals are very tightly coupled.  The xcore
+is clocked at 400 or 500 Mhz, but that doesnt mean all 8 cores/threads
+are running at that rate.  It appears that only one thread gets to
+execute per clock cycle, but if there is more than one core running
+then they take turns, even with that I dont think a single core runs
+at 500MHz, will have to investigate more, I think there is a max per
+core/thread speed.  The peripherals are available to all of the threads
+but it appears that onec a thread has claimed a peripheral then others
+cant/shouldnt use it.  They should allocate their own.  I dont yet
+know how many of each type of peripheral there are.  There are only
+a couple of peripheral types though, ports and timers.  There are no
+uarts, no spi controllers, etc.  You have to implement all of those
+things in software.  Not to worry, this architecture is designed for
+that.  It is as if they have built an rtos into hardware for you, you
+really dont want to implement an OS on top of this architecture.  It is
+built right into the design that for example you set a timer to time
+out and instead of having to setup interrupt service routines and
+parse out who created the interrupt, etc you simply execute a single
+instruction that says "I want to sleep until the timer times out", and
+then your program wakes up and runs along.  Same goes for I/O ports.  And
+since this is a multicore processor there are core to core communication
+paths built into the design so you can also go to sleep until some
+other core pokes you with something.  And you can also fairly easily
+set up event monitoring which has the flavor of an interrupt handler
+except that you dont have a common entry point, it is kind of like the
+new ARM cores with dozens to hundreds of individual interrupt vectors
+in this case you simply setup a handler for every item you want to
+wake you up and you wake up directly at the beginning of that handler.
 
-Did I mention that the cost of the xmos developers kit is signing up on
-their website?  Basically free.  And, on top of all that you get a
-simulator, both logic and instruction set, which I think I saw them
-say that can be integrated into other simulations.  The output can be
-a dump of instructions and registers in execution order, or a waveform
-output of the I/O lines as well as thread internals that hardware
-engineers are used to looking at.
+So it is like a cpld or fpga in that respect that you have this generic
+set of building blocks and even the simple things like a uart you have
+to build you dont have any of those in hardware.  They provide a nice
+simulator that outputs in two ways one is a textual listing of basically
+every clock cycle of the xcore, what instruction, what registers and
+their values which core ran that cycle, etc.  They also provide output
+with waveforms, vcd format, that you can use gtkwave or your favorite
+waveform viewer.  Very much like developing with vhdl or verilog for
+a cpld or fpga.  You can carefully tune the timing of the I/O.
 
-So obviously I like this product line.  I did play with their XC language
-and have a few eval boards, but wanted to get down into the assembler.
-It took a bit of work at first to get a feel for what is going on, for
-asm programmers their docs are a good reference, but do not really serve
-to teach or get you started.  This repo will hopefully provide just that
-a little push or a little bit of connecting the dots to begin to
-understand some basics for this processor and start writing and debugging
-some programs.
+So they have this xcore I think they call it, what I am calling an xcore
+is this logic blob with 8 internal cores tightly coupled with timer and
+gpio port peripherals.  I dont know exactly what the edge looks like
+(does it have a memory bus?), but the generic xcore does have a fixed
+number of I/O ports which when they package this into silicon they can
+do some fun things like for example put more than one xcore on one chip
+with those cores tied together using external communication paths that
+work the same or similar to the internal core to core communications.
+if you look at some of their early demos, they can go so far as to take
+multiple chips and connect external communication paths so that you can
+gang up mutiple xcores by using multiple chips.  All by design.  So you
+have this somewhat polished xcore, that they wrap with some real-ish
+peripherals like a usb controller or an ADC and I dont yet know what
+else (DAC?).  One of the early ones I tried the I/O ports were overlapped
+on pins such that you could access say 4 I/O pins as either a single
+4 bit port, or as 4 individual ports, and that external to the xcore
+(but within the chip) the overlap was managed with some priority such
+that say the single line port access had priority over the 4 like port.
+
+So far their development tools are good, including a flash programmer
+that so far "just works".  Usually with other microcontroller vendors
+their flash programmer is troublesome at best, they rely on third party
+tools, etc.  Even when these other vendors make their own boards I
+often struggle to find a good set of tools.  XMOS so far has delivered,
+will see if that changes.
+
+Because this isnt a single threaded processor, and because it is
+apparently designed to be event driven they have made their own extensions
+to the C programming language.  I call it XC, I dont know if that is
+what they call it.  Their compiler is a modified gnu gcc compiler called
+xcc.  They have added constructs to allow you to define parallel tasks
+for example, basically you are dictating that you want these things to
+run on their own cores independently.  They also added operands and
+data types to tie directly to their timers and ports and communication
+channels so that in C (XC) you can have a line of code that basically
+dictates the instruction that causes that core to hang/wait until an
+event.
+
+Their tool suite is a free download, well it may cost you an email
+addressi/registration.  You get the tools and the simulator, so you can
+start playing with this thing now, you dont have to buy anything to
+see if you love it or hate it.  I am attempting to put together a
+suite of example programs that are targetted at the simulator and then
+similar examples targetted at a board or boards you might be interested
+in buying.  I like the concept in general and am definitely a fan,
+I am also trying to learn the xcore at the instruction set level, which
+means the internals since a lot of it has to do with what values to feed
+what instructions to get things to happen.  The xcc compiler does all
+of this for you and actually I have learned most things from disassembling
+the xcc compiled code then looking up the instructions in their manuals.
+There are some gurus hanging out at xcore.com as well that have been
+quite helpful.  So I plan to have both assembly (xas) and xc language
+(xcc) examples for each of the targets.  As usual, dont expect me to
+use their IDE/GUI, I will stick with the command line tools.
+
+I consider this instruction set to be advanced, even this XC programming
+language, if you have an interest in this assembly language you should
+try some other processor first (try my lsasim or thumbulator repo), or
+if you want to learn C there are very many resources for that, one
+you might try is http://c.learncodethehardway.org/.
 
 I do not work for xmos in any way shape or form, I just happen to like
 this core and want to see them succeed.  Perhaps if lucky I can convice
 the folks I do work for to try one of these in one of our designs and/or
 build something of my own on the side that uses an xmos device.  For
 now I am quite pleased just using the simulator and the eval boards
-that I have purchased.  Note sparkfun has a board as well as the ones
-from xmos.
+that I have purchased.
 
-Most of these examples, if not all, you only need the developer tools
-the assembler, compiler, linker and xsim simulator.  A single download
-from xmos.com.  My development environment is Linux, I would assume that
-the other operating systems supported provide the same command line
-tools and with those tools, you should be able to use these sample
-programs.  It is very easy, if not trivial, to run your program on
-the hardware or program it into the flash on the hardware xrun or xflash
-instead of xsim.
+I am very happy to see that they now offer a $15 board that you can,
+in theory, mate up with a Raspberry Pi, but you dont have to, it works
+just fine as is.  I think this is a big step in the right direction
+for XMOS (a sub $100 eval platform, even better sub $20).  I hope it
+will help draw more hobbyists the folks that just want to make a cool
+robot or something and buy arduinos now can mate a Raspberry Pi plus
+an XMOS startKIT and have something for about the same price that is
+literally an order of magnitude more horsepower.  It also makes the
+Raspberry Pi significantly more usable for such projects.  If nothing
+else I can hopefully provide simple, working, examples that along with
+XMOS code, hold someones hand down the road to making a library set
+for folks wanting to just make robots and stuff (vs my desire to just
+learn how the chips work).
 
-Start with the blink_led directory, blink_xc.xc and then blink_asm.s.
-As well as a readme in that directory and the other example
-directories (TODO).
+This repo is under construction, but you may want to start in the
+simulator directory even if you have hardware, and then try the other
+directories.
 
-
-Note, this is expected when using the Makefiles to generate waveforms
+Note, this error is expected when using the Makefiles to generate waveforms
 
 xsim: error: C51188: maximum cycles reached (4000)
 make: *** [thread_hand2.vcd] Error 1
