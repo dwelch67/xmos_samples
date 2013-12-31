@@ -1,0 +1,21 @@
+
+See startKIT level README file for information on where to find
+docs and schematics for this startKIT board.
+
+This actually took a lot of work, in part because I was fighting with
+the simulator.
+
+In theory a port resource can only be controlled by one core (at any
+time).  They tied the 9 leds to one port resource.  So the idea was
+to have one core actually drive the leds, and the other cores each
+ask that core to change one of the leds.  One dedicated led bit for
+each of these other cores.
+
+The key here is events.  If you just use an in or testct or chkct or
+something like that it is waiting for one single thing, well if we
+want it to wait on many things and wake up on the first one you use
+events (or interrupts).  Basically the waiteu instruction.  I have
+one master thread and a few slaves one led bit each, they use their
+own timers and ask the master to change the state of the led, all
+running their own separate timeouts.
+
