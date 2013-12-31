@@ -48,12 +48,13 @@ thread_hand3.vcd : thread_hand3.xe
 thread_hand4.xe : thread_hand4.s threads.xn
 	xas thread_hand4.s -o thread_hand4.o
 	#xcc -O2 thread_hand4.o -target=STARTKIT -o thread_hand4.xe -nostartfiles -nostdlib -nodefaultlibs 
-	xmap -targetfile=hello.xn --defsymbol _default_clkblk=0x6 -march=xs1b -o thread_hand4.xe --first thread_hand4.o 
+	#xcc -O2 thread_hand4.o XS1-U16A-128-FB217-C10.xn -o thread_hand4.xe -nostartfiles -nostdlib -nodefaultlibs 
+	xcc -O2 thread_hand4.o hello.xn -o thread_hand4.xe -nostartfiles -nostdlib -nodefaultlibs 
+	#xmap -targetfile=hello.xn --defsymbol _default_clkblk=0x6 -march=xs1b -o thread_hand4.xe --first thread_hand4.o 
 	xobjdump -D thread_hand4.xe > thread_hand4.list
 
 thread_hand4.vcd : thread_hand4.xe
 	xsim --max-cycles 4000 --vcd-tracing "-o thread_hand4.vcd -ports -ports-detailed -cycles -cores -timers -clock-blocks -instructions -functions" thread_hand4.xe
-
 
 
 thread_xtest.xe : thread_xtest.xc dummy.xc threads.xn hello.xn
