@@ -1,4 +1,7 @@
 
+# DONT DO THIS, THIS IS A NO-NO SHOULD HAVE SEPARATE CHANNELS FOR EACH PAIR OF THREADS.
+
+
 _start:
     ldc r1, 10
 notmain:                # what was this loop for?
