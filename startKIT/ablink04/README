@@ -15,7 +15,7 @@ The key here is events.  If you just use an in or testct or chkct or
 something like that it is waiting for one single thing, well if we
 want it to wait on many things and wake up on the first one you use
 events (or interrupts).  Basically the waiteu instruction.  I have
-one master thread and a few slaves one led bit each, they use their
+one master thread and a few dependents one led bit each, they use their
 own timers and ask the master to change the state of the led, all
 running their own separate timeouts.
 

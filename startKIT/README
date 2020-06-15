@@ -62,6 +62,11 @@ XS1-A6A-64-FB96 Datasheet
 So the FB217 note in the schematics doesnt make sense.  It looks like
 the FB96 doc is the one to go with...will see.
 
+Ohh, how evil.  The part marking is supposedly bogus to throw us off
+track.  It may be a XS1-U16A-128-FB217 with tile 0 and the usb being
+used for us to talk to the board from our computer over usb and tile
+1 is the one we get to play with.
+
 Good, Bad, or Otherwise, I tend to find the best info about
 XMOS parts from their various config files and not their docs.
 

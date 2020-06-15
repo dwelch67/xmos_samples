@@ -29,7 +29,7 @@ _start:
 
     #-------------
     getst r0,res[r1]    # allocate a thread
-    ldap r11,slave    # get address for the code for new thread
+    ldap r11,dependent    # get address for the code for new thread
     init t[r0]:pc,r11   # set pc for new thread
 
     getr r2,2           # allocate a channel end for thread 0
@@ -52,7 +52,7 @@ _start:
 
     #-------------
     getst r0,res[r1]    # allocate a thread
-    ldap r11,slave    # get address for the code for new thread
+    ldap r11,dependent    # get address for the code for new thread
     init t[r0]:pc,r11   # set pc for new thread
 
     getr r2,2           # allocate a channel end for thread 0
@@ -77,7 +77,7 @@ _start:
 
     #-------------
     getst r0,res[r1]    # allocate a thread
-    ldap r11,slave    # get address for the code for new thread
+    ldap r11,dependent    # get address for the code for new thread
     init t[r0]:pc,r11   # set pc for new thread
 
     getr r2,2           # allocate a channel end for thread 0
@@ -100,7 +100,7 @@ _start:
 
     #-------------
     getst r0,res[r1]    # allocate a thread
-    ldap r11,slave    # get address for the code for new thread
+    ldap r11,dependent    # get address for the code for new thread
     init t[r0]:pc,r11   # set pc for new thread
 
     getr r2,2           # allocate a channel end for thread 0
@@ -143,7 +143,7 @@ t0hand:
     waiteu
 
 
-slave:
+dependent:
     getr r2,0x1         # get a timer resource handle
     setc res[r2],0x1    # set to UNCOND (COND_NONE)
     in r3,res[r2]       # get current count, does not wait in this mode
